@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-            img {
-                width: 1rem;
-            }
+        img {
+            width: 1rem;
+        }
     </style>
 </head>
 <?php
-
+include("config.php");
 include("connect.php");
 include("libery.php");
 
@@ -21,9 +21,18 @@ $count = $result_count->fetch_array(MYSQLI_NUM)[0];
 echo "количество записей: " . $count;
 $result_count->free();
 
+$pagecount = ceil($count / $pagesize);
+$currientpage = $_GET['page'] ?? 1;
+$startrow = ($currientpage - 1) * $pagesize;
+$pagenation = "<div class='pagenation>";
+for ($i = 1; $i <= $pagecount; $i++) {
+    $pagenation .= "<a href = '?page=$i'>$i</a>";
+}
+$pagenation .= "</div>";
 
-$result = $mysqli->query('SELECT * FROM guests');
 
+$result = $mysqli->query("SELECT * FROM guests LIMIT $startrow, $pagesize");
+echo $pagenation;
 echo "<table border='1'>\n";
 while ($row = $result->fetch_object()) {
     echo "<tr>";
@@ -32,6 +41,7 @@ while ($row = $result->fetch_object()) {
     echo "</tr>";
 }
 echo "</table>\n";
+echo $pagenation;
 $result->free();
 
 $mysqli->close();
